@@ -46,4 +46,8 @@ class User extends Authenticatable
     function article(){
         return $this->belongsTo(Atricle::class);
     }
+
+    function comment(){
+        return $this->hasMany(Comment::class);
+    }
 }
