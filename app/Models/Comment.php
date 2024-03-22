@@ -14,6 +14,6 @@ class Comment extends Model
     }
 
     function article(){
-        return $this->hasMany(Comment::class);
+        return $this->belongsTo(Article::class);
     }
 }

@@ -10,6 +10,10 @@ class Article extends Model
     use HasFactory;
 
     function uesr(){
-        return belongsTo(User::class);
+        return $this->belongsTo(User::class);
+    }
+
+    function comment(){
+        return $this->hasMany(Comment::class);
     }
 }

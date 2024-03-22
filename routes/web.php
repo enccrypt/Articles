@@ -26,6 +26,9 @@ Route::resource('article', ArticleController::class);
 //auth
 Route::get('signin', [AuthController::class, 'signin']);
 Route::post('register', [AuthController::class, 'register']);
+Route::get('login', [AuthController::class, 'login'])->name('login');
+Route::post('signup', [AuthController::class, 'signup']);
+Route::get('logout', [AuthController::class, 'logout']);
 
 
 //MainController

@@ -4,6 +4,10 @@ namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use App\Models\User;
+use App\Models\Comment;
+use Illuminate\Auth\Access\Response;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -21,6 +25,10 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::define('moderator', function(Comment $comment, User $user){
+            return ($user->id == $comment->user->id) ?
+            Response::deny('not author!') :
+            Response::allow();
+        });
     }
 }

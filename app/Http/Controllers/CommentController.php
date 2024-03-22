@@ -36,7 +36,7 @@ class CommentController extends Controller
         $comment = new Comment;
         $comment->title = request('title');
         $comment->text = request('text');
-        $comment->user_id = 2;
+        $comment->user_id = Auth::id();
         $comment->article_id = request('article_id');
         $comment->save();
         return redirect()->route('article.show', ['article'=>request('article_id')]);

@@ -36,6 +36,7 @@
         <div class="card-body">
             <h5 class="card-title"> {{$article->title}} </h5>
             <p class="card-text"> {{$article->desc}}</p>
+            @can('comment', $comment)
             <div class="btn-toolbar">
                 <a href="/article/{{$article->id}}/edit" class="btn btn-primary mr-3"> Edit article </a>
                 <form action="/article/{{$article->id}}" method="post"> 
@@ -44,6 +45,7 @@
                 @csrf
             </form>
             </div>
+        @endcan
         </div>
         </div>
         @endforeach
