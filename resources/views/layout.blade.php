@@ -32,7 +32,12 @@
       <li class="nav-item active">
         <a class="nav-link" href="/article/create"> Create Article </a>
       </li>
-      <li class="nav-item active">
+      @can('accept')
+      <li class="nav-item">
+        <a class="nav-link" href="/comment"> New comment </a>
+      </li>
+      @endcan
+      <li class="nav-item">
         <a class="nav-link" href="/contacts"> Contacts <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">

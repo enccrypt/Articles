@@ -17,8 +17,12 @@ use App\Http\Controllers\ArticleController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
 //Comment
-Route::post('comment', [CommentController::class, 'store']);
+Route::resource('comment', CommentController::class);
+Route::get('comment', [CommentController::class, 'index']);
+//Route::post('comment', [CommentController::class, 'store']);
+
 
 //Article
 Route::resource('article', ArticleController::class);

@@ -6,6 +6,8 @@ use App\Models\Comment;
 use Illuminate\Http\Request;
 use App\Mail\MailNewComment;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Models\Article;
 use Illuminate\Support\Facades\Auth;
 class CommentController extends Controller
@@ -15,7 +17,13 @@ class CommentController extends Controller
      */
     public function index()
     {
-        //
+        $comments = DB::table('comments')
+                ->join('users', 'users.id', '=', 'comments.user_id')
+                ->join('articles', 'articles.id', '=', 'comments.article_id')
+                ->select('comments.title', 'comments.text', 'users.name', 'articles.name as article_name')
+                ->get();
+        Log::alert($comments);
+        // return view('comment.index', ['comments', $comments]);
     }
 
     /**
@@ -46,7 +54,7 @@ class CommentController extends Controller
         $comment->save();
         $res = $comment->save();
         if ($res) Mail::to('itagirov2024@mail.ru')->send(new MailNewComment($article));
-        return redirect()->route('article.show', ['article'=>request('article_id')]);
+        return redirect()->route('article.show', ['article'=>request('article_id')])->with(['res'=>$res]);
     }
 
     /**
@@ -62,7 +70,7 @@ class CommentController extends Controller
      */
     public function edit(Comment $comment)
     {
-        //
+        return view('comment.edit', ['comment'=>$comment]);
     }
 
     /**
@@ -70,7 +78,14 @@ class CommentController extends Controller
      */
     public function update(Request $request, Comment $comment)
     {
-        //
+        $request->validate([
+            'title'=>'required',
+            'text'=>'required'
+        ]);
+        $comment->title = request('title');
+        $comment->text = request('text');
+        $comment->save();
+        return redirect()->route('article.show', ['article'=>$comment->article_id]);
     }
 
     /**
@@ -78,6 +93,7 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
-        //
+        $comment->delete();
+        return redirect()->route('article.show', ['article'=>$comment->article_id]);
     }
 }

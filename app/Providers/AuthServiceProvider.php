@@ -25,14 +25,16 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::before(function(User $user){
+        $this->registerPolicies();
+
+        Gate::define('accept', function(User $user){
             if ($user->role == 'moderator') return true;
         });
-        
-        Gate::define('moderator', function(Comment $comment, User $user){
-            return ($user->id == $comment->user->id) ?
-            Response::deny('not author!') :
-            Response::allow();
+
+        Gate::define('comment', function(User $user, Comment $comment){
+        if ($user->id === $comment->user_id){
+            return Response::allow();}
+        return Response::deny('В доступе отказано!');
         });
     }
 }

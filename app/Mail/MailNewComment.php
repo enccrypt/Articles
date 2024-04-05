@@ -18,10 +18,9 @@ class MailNewComment extends Mailable
     /**
      * Create a new message instance.
      */
-
     public function __construct(public Article $article)
     {
-        
+   
     }
 
     /**
@@ -45,6 +44,11 @@ class MailNewComment extends Mailable
         );
     }
 
+    public function build(){
+        return new Content(
+            view: 'mail.comment',
+        );
+    }
     /**
      * Get the attachments for the message.
      *
