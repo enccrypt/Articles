@@ -3,23 +3,29 @@
 <table class="table">
   <thead>
     <tr>
-      <th scope="col"> Title </th>
-      <th scope="col"> Text </th>
-      <th scope="col"> Article </th>
-      <th scope="col"> User </th>
-      <th scope="col"> Accept/Reject </th>
+      <th scope="col"> Date </th>
+      <th scope="col"> Name </th>
+      <th scope="col"> ShortDesc</th>
+      <th scope="col"> Desc </th>
+      <th scope="col"> Preview image </th>
     </tr>
   </thead>
   <tbody>
-    @foreach($comment as $comment)
+    @foreach($comments as $comment)
     <tr>
-      <th scope="row"> {{$article->title}}</th>
-      <th scope="row"> {{$article->text}}</th>
-      <td> <a href="/article/{{$article->id}}"> {{$article->name}} </a> </td>
-      <td> {{$article->desc}} </td>
+      <th scope="row"> {{$comment->title}}</th>
+      <td> {{$comment->text}}</td>
+      <td> <a href="/article/{{$comment->article_id}}">  {{$comment->article_name}} </a> </td>
+      <td> {{$comment->name}}</td>
+      <td>
+        @if($comment->accept == 'true')
+         <a class="btn btn-warning" href="/comment/{{$comment->id}}/reject">  Reject </a> 
+        @else
+        <a class="btn btn-success" href="/comment/{{$comment->id}}/accept">  Accept </a>
+        @endif
+      </td>
     </tr>
     @endforeach
   </tbody>
 </table>
-{{$articles->links()}}
 @endsection

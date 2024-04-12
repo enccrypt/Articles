@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\Article;
 use Illuminate\Support\Facades\Auth;
+use App\Jobs\VeryLongJob;
+
+
+
 class CommentController extends Controller
 {
     /**
@@ -20,11 +24,25 @@ class CommentController extends Controller
         $comments = DB::table('comments')
                 ->join('users', 'users.id', '=', 'comments.user_id')
                 ->join('articles', 'articles.id', '=', 'comments.article_id')
-                ->select('comments.title', 'comments.text', 'users.name', 'articles.name as article_name')
+                ->select('comments.*', 
+                'users.name', 'articles.name as article_name', 'articles.id as article_id')
                 ->get();
-        Log::alert($comments);
-        // return view('comment.index', ['comments', $comments]);
+        // Log::alert($comments);
+        return view('comment.index', ['comments' => $comments]);
     }
+
+    public function accept(Comment $comment){
+        $comment->accept = 'true';
+        $comment->save();
+        return redirect()->route('comment.index');
+    }
+
+    public function reject(Comment $comment){
+        $comment->accept = 'false';
+        $comment->save();
+        return redirect()->route('comment.index');
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -53,7 +71,7 @@ class CommentController extends Controller
         $comment->article_id = request('article_id');
         $comment->save();
         $res = $comment->save();
-        if ($res) Mail::to('itagirov2024@mail.ru')->send(new MailNewComment($article));
+        if ($res) VeryLongJob::dispatch($article);
         return redirect()->route('article.show', ['article'=>request('article_id')])->with(['res'=>$res]);
     }
 
