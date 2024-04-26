@@ -29,7 +29,7 @@ class ArticleControllerPolicy
      */
     public function create(User $user)
     {
-        return ($user->role == $comment->user->id) ?
+        return ($user->role == 'moderator') ?
             Response::allow() :
             Response::deny('not moderator!');
     }
