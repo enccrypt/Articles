@@ -1,15 +1,16 @@
 <!doctype html>
 <html lang="en">
   <head>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <title>Title</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   </head>
-  <body class="antialiased">
+  <body>
       
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -19,7 +20,7 @@
 
     <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="/"> Main </a>
+  <a class="navbar-brand" href="/">Main</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -27,56 +28,60 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
-        <a class="nav-link" href="/article"> Atricles <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="/article">Articles<span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="/article/create"> Create Article </a>
+      <li class="nav-item">
+        <a class="nav-link" href="/article/create">Create Article</a>
       </li>
       @can('accept')
       <li class="nav-item">
-        <a class="nav-link" href="/comment"> New comment </a>
+        <a class="nav-link" href="/comments">New comments<span class="sr-only">(current)</span></a>
       </li>
       @endcan
       <li class="nav-item">
-        <a class="nav-link" href="/contacts"> Contacts <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="/contacts">Contacts<span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Link</a>
-      </li>
+      @auth
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-          Dropdown
+          Notify <span>{{auth()->user()->unreadNotifications()->count()}}</span>
         </a>
         <div class="dropdown-menu">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#">Something else here</a>
+          @foreach(auth()->user()->unreadNotifications as $notify)
+            <a class="dropdown-item" href="{{route(
+                                              'article.show', 
+                                              [
+                                                'article'=>$notify->data['id_article'],
+                                                'id_notify'=> $notify->id
+                                              ],
+                                              )
+                                            }}">{{$notify->data['title']}}</a>
+          @endforeach
         </div>
-      
+      </li>
+      @endauth
     </ul>
     <div class="form-inline my-2 my-lg-0">
-    @guest
-      <a href = "/signin" class="btn btn-outline-success mr-2 my-2 my-sm-0"> Sign In </a>
-      <a href = "/login" class="btn btn-outline-success  my-2 my-sm-0"> Sign Up </a>
-    @endguest
-    @auth
-      <a href = "/logout" class="btn btn-outline-success  my-2 my-sm-0"> Log Out </a>
-    @endauth
-</div>
-</div>
+      @guest
+       <a href="/signin" class="btn btn-outline-success mr-2 my-2 my-sm-0">Sign In</a>
+       <a href="/login" class="btn btn-outline-success mr-2 my-2 my-sm-0">Sign Up</a>
+       @endguest
+       @auth
+       <a class="navbar-brand">Name : {{auth()->user()->name}} </a>
+       <a href="/logout" class="btn btn-outline-success mr-2 my-2 my-sm-0">Log Out</a>
+       @endauth
+    </div>
   </div>
 </nav>
     </header>
     <main>
-      <div class="container">
-
+      <div class="container centered mt-3">
       <div id="app">
-        <App />
+          <App />
       </div>
-
       @yield('content')
       </div>
     </main>
+    <footer></footer>
   </body>
 </html>

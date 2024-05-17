@@ -20,5 +20,12 @@ class UserSeeder extends Seeder
             'password'=>Hash::make('123456'),
             'role' => 'moderator'
         ]);
+
+        User::create([
+            'name' => 'islam',
+            'email'=> 'islam@mail.ru',
+            'password' => Hash::make('123456'),
+            'role'=> 'reader',
+        ]);
     }
 }

@@ -19,13 +19,10 @@ use App\Http\Controllers\ArticleController;
 */
 
 //Comment
-Route::controller(CommentController::class)->group(function(){
-    Route::post('comment', 'store');
-    //Route::resource('comment');
-    Route::get('comment', 'index')->name('comment.index');
-    Route::get('comment/{comment}/accept', 'accept');
-    Route::get('comment/{comment}/reject', 'reject');
-});
+Route::resource('comment', CommentController::class)->middleware('auth:sanctum');
+Route::get('comments', [CommentController::class, 'index'])->name('new_comments');
+Route::get('comment/{comment}/accept', [CommentController::class, 'accept']);
+Route::get('comment/{comment}/reject', [CommentController::class, 'reject']);
 
 //Route::post('comment', [CommentController::class, 'store']);
 
