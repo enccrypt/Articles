@@ -31,7 +31,10 @@ class StartCommand extends Command
      */
     public function handle()
     {
-        $commentCount = Comment::whereDate('created_at', Carbon::today()) ->count();
-        Mail::to('itagirov2024@mail.ru')->send(new StartMail($commentCount));
+        $commentCount = Comment::whereDate('created_at', Carbon::today()) ->count(); //счет колва комментов
+        Mail::to('itagirov2024@mail.ru')->send(new StartMail($commentCount)); //отправка комментов на почту
     }
 }
+
+
+// запустить команду handle() -- php artisan start

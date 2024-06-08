@@ -26,7 +26,7 @@ class CommentController extends Controller
      */
     public function index()
     {
-        $comments = Cache::rememberForever('comments', function(){
+        $comments = Cache::rememberForever('comments', function(){ //извлечение комменатариев из кэша
            return  DB::table('comments')
             ->join('users', 'users.id', '=', 'comments.user_id')
             ->join('articles', 'articles.id', '=', 'comments.article_id')
@@ -88,14 +88,12 @@ class CommentController extends Controller
             'text' => 'required|min:6'
         ]);
 
-        //$article = Article::where('id',request('article_id'))->get();
         $article = Article::findOrFail(request('article_id'));
         $comment = new Comment;
         $comment->title = request('title');
         $comment->text = request('text');
         $comment->user_id = Auth::id();
         $comment->article_id = request('article_id');
-        //$comment->save();
         $moderator_id = User::where('role','moderator')->first()->id;
         if($comment->user_id == $moderator_id){
             $comment->accept = true;
@@ -107,6 +105,7 @@ class CommentController extends Controller
             VeryLongJob::dispatch($article);
             Cache::forget('comments');
         }
+        if($request->expectsJson()) return response()->json($comment);
         return redirect()->route('article.show', ['article'=>request('article_id')])->with(['res'=>$res]);
     }
 
@@ -147,7 +146,10 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
+        $article_id = $comment->article_id;
+        Cache::forget('comments_'.$article_id);
+        
         $comment->delete();
-        return redirect()->route('article.show', ['article'=>$comment->article_id]);
+        return redirect()->route('article.show', ['article' => $comment->article->id]);
     }
 }

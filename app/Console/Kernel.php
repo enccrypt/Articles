@@ -19,10 +19,13 @@ class Kernel extends ConsoleKernel
     /**
      * Register the commands for the application.
      */
-    protected function commands(): void
+    protected function commands(): void //регает комманды из commands в руты
     {
         $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
     }
 }
+
+// 'start' отправляет кол-во комментов за сегодняшний день на почту 
+// (выполняется автоматически выполняться каждую минуту)

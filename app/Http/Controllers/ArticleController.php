@@ -17,22 +17,23 @@ class ArticleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index() //получние статей (кэшируя результаты запроса)
     {
-        //$articles = Article::latest()->paginate(5);
         $currentPage = request('page') ? request('page') : 1;
         $articles = Cache::remember('articles'.$currentPage, 3000, function(){
             return Article::latest()->paginate(5);
         });
+
+        if(request()->expectsJson()) return response()->json($articles);
         return view('article.index', ['articles'=>$articles]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create() 
     {
-        Gate::authorize('create', [self::class]);
+        Gate::authorize('create', [self::class]); //проверка, имеет ли user права на создание статьи
         return view('article.create');
     }
 
@@ -45,7 +46,7 @@ class ArticleController extends Controller
             ->select('key')
             ->whereRaw('`key` GLOB :param',[':param'=>'articles*[0-9]'])->get();
         foreach($caches as $cache){
-            Cache::forget($cache->key);
+            Cache::forget($cache->key); //удаляет кэшированные записи статей
         }
 
         $request->validate([
@@ -62,6 +63,7 @@ class ArticleController extends Controller
         $article->save();
         $res = $article->save();
         if ($res) ArticleEvent::dispatch($article);
+        if($request->expectsJson()) return response()->json($res);
         return redirect()->route('article.index');
     }
 
@@ -77,7 +79,8 @@ class ArticleController extends Controller
         $comments = Cache::rememberForever('comments_'.$article->id, function() use($article){
             return Comment::where(['article_id'=>$article->id,'accept'=>'true'])->get();
         });
-        
+
+        if(request()->expectsJson()) return response()->json(['article'=>$article, 'comments'=>$comments]);
         return view('article.show', ['article'=>$article, 'comments'=>$comments, 'res'=>$_GET]);
     }
 
@@ -86,7 +89,7 @@ class ArticleController extends Controller
      */
     public function edit(Article $article)
     {
-       $this->authorize('update',$article);
+       $this->authorize('update', [self::class, $article]);
        return view('article.edit', ['article' => $article]);
     }
 
@@ -111,9 +114,10 @@ class ArticleController extends Controller
         $article->date = $request->date;
         $article->name = request('name');
         $article->desc = request('desc');
-        $article->user_id = 2;
-        $article->save();
+        $article->user_id = 1;
+        $res = $article->save();
         return redirect()->route('article.show', ['article'=>$article->id]);
+        if($request->expectsJson()) return response()->json($res);
     }
 
     /**
@@ -121,23 +125,14 @@ class ArticleController extends Controller
      */
     public function destroy(Article $article)
     {
-        // Gate::authorize('delete', [$article]);
-        // $article->delete();
-        // return redirect()->route('article.index');
-
+        Cache::flush();
         Gate::authorize('delete', [self::class, $article]);
-        if($article->delete()){
-            $caches = DB::table('cache')
-            ->select('key')
-            ->whereRaw('`key` GLOB :param',[':param'=>'articles*[0-9]'])->get();
-        foreach($caches as $cache){
-            Cache::forget($cache->key);
-            }
-        };
+        $res = $article->delete();
         $comments = Comment::where('article_id', $article->id)->get();
         foreach($comments as $comment){
             $comment->delete();
         }
         return redirect()->route('article.index');
+        if($request->expectsJson()) return response()->json($res);
     }
 }

@@ -19,14 +19,15 @@ class AuthController extends Controller
             'email'=>'required|unique:App\Models\User|email',
             'password'=>'required|min:6'
         ]);
-    $user = User::create([
-        'name'=>$request->name,
-        'email'=>$request->email,
-        'password'=>Hash::make($request->password),
-    ]);
-    
-    $user->createToken('MyAppTokens');
-    return redirect()->route('login');
+        $user = User::create([
+            'name'=>$request->name,
+            'email'=>$request->email,
+            'password'=>Hash::make($request->password),
+        ]);
+
+        $token = $user->createToken('MyAppTokens');
+        if($request->expectsJson()) return response()->json($token);
+        return redirect()->route('login');
     }
 
     function login(){
@@ -41,6 +42,8 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials)){
+            $token = auth()->user()->createToken('MyAppTokens');
+            if($request->expectsJson()) return response()->json($token);
             $request->session()->regenerate();
             return redirect()->intended('/article');
         } 
@@ -52,9 +55,11 @@ class AuthController extends Controller
     }
 
     function logout(Request $request){
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regeneratetoken();
+        auth()->user()->tokens()->delete(); //удаляет все токены пользователя
+        if($request->expectsJson()) return response()->json('logout'); 
+        Auth::logout(); // завершение аутентификация пользователя
+        $request->session()->invalidate(); //предотвращает повторное использование идентификатора
+        $request->session()->regenerateToken(); //важно создать новый csrf для безопасности
         return redirect('/');
     }
 }
